@@ -20,6 +20,7 @@ router.put('/user/profile', authMiddleware, validate(updateProfileSchema), userC
 router.get('/user/dashboard', authMiddleware, requireRole('pelanggan'), userCtrl.dashboard);
 router.post('/user/pesan', authMiddleware, requireRole('pelanggan'), validate(pesananSchema), userCtrl.createPesanan);
 router.get('/user/pesanan/:id', authMiddleware, requireRole('pelanggan'), userCtrl.getPesanan);
+router.post('/user/pesanan/:id/rating', authMiddleware, requireRole('pelanggan'), userCtrl.addRating);
 router.post('/user/bayar/:id', authMiddleware, requireRole('pelanggan'), upload.single('bukti_bayar'), userCtrl.uploadBuktiBayar);
 
 // ── Admin ──
@@ -42,6 +43,7 @@ router.delete('/admin/pesanan/:id', authMiddleware, requireRole('admin'), adminC
 
 router.get('/admin/laporan', authMiddleware, requireRole('admin'), adminCtrl.laporan);
 router.get('/admin/customers', authMiddleware, requireRole('admin'), adminCtrl.listCustomers);
+router.get('/admin/ulasan', authMiddleware, requireRole('admin'), adminCtrl.listUlasan);
 router.get('/admin/bukti-bayar/{*path}', authMiddleware, requireRole('admin'), adminCtrl.getBuktiBayar);
 
 module.exports = router;

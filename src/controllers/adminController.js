@@ -268,3 +268,15 @@ exports.listCustomers = async (req, res, next) => {
     res.json(customers);
   } catch (err) { next(err); }
 };
+
+const reviewsUtil = require('../utils/reviews');
+
+// GET /api/admin/ulasan
+exports.listUlasan = async (req, res, next) => {
+  try {
+    const reviews = await reviewsUtil.getReviews();
+    res.json(reviews.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)));
+  } catch (err) {
+    next(err);
+  }
+};

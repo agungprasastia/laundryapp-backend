@@ -121,27 +121,62 @@ exports.uploadBuktiBayar = async (req, res, next) => {
     const ext = req.file.originalname.split('.').pop();
     const filePath = `${req.user.id}/${req.params.id}_${Date.now()}.${ext}`;
 
-    const { error: uploadError } = await supabaseAdmin.storage
+    const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
       .from('bukti-bayar')
       .upload(filePath, req.file.buffer, {
         contentType: req.file.mimetype,
-        upsert: true,
+        upsert: true
       });
 
-    if (uploadError) throw uploadError;
+    if (uploadError) return next(uploadError);
 
-    // Update pesanan
     const { data, error } = await supabaseAdmin
       .from('pesanans')
-      .update({
-        bukti_bayar_url: filePath,
-        status_bayar: 'Menunggu Verifikasi',
-      })
+      .update({ bukti_bayar_url: filePath, status_bayar: 'Menunggu Verifikasi' })
       .eq('id', req.params.id)
-      .select('*, pakets(nama_paket, harga)')
+      .eq('user_id', req.user.id)
+      .select()
       .single();
 
-    if (error) throw error;
-    res.json(data);
+    if (error) return next(error);
+    return res.json(data);
   } catch (err) { next(err); }
+};
+
+const reviewsUtil = require('../utils/reviews');
+
+// POST /api/user/pesanan/:id/rating
+exports.addRating = async (req, res, next) => {
+  try {
+    const pesananId = parseInt(req.params.id, 10);
+    const { rating, ulasan } = req.body;
+
+    // Verify pesanan belongs to user and is finished
+    const { data: pesanan, error } = await supabaseAdmin
+      .from('pesanans')
+      .select('id, status, user_id, profiles(full_name)')
+      .eq('id', pesananId)
+      .eq('user_id', req.user.id)
+      .single();
+
+    if (error || !pesanan) {
+      return res.status(404).json({ message: 'Pesanan tidak ditemukan' });
+    }
+    
+    if (pesanan.status !== 'Selesai') {
+      return res.status(400).json({ message: 'Pesanan belum selesai' });
+    }
+
+    const savedReview = await reviewsUtil.addReview(
+      pesananId, 
+      req.user.id, 
+      rating, 
+      ulasan, 
+      pesanan.profiles?.full_name || 'Tanpa Nama'
+    );
+
+    return res.json(savedReview);
+  } catch (err) {
+    next(err);
+  }
 };
