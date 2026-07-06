@@ -40,6 +40,6 @@ router.put('/admin/pesanan/:id', authMiddleware, requireRole('admin'), validate(
 router.delete('/admin/pesanan/:id', authMiddleware, requireRole('admin'), adminCtrl.deletePesanan);
 
 router.get('/admin/laporan', authMiddleware, requireRole('admin'), adminCtrl.laporan);
-router.get('/admin/bukti-bayar/:path(*)', authMiddleware, requireRole('admin'), adminCtrl.getBuktiBayar);
+router.get('/admin/bukti-bayar/{*path}', authMiddleware, requireRole('admin'), adminCtrl.getBuktiBayar);
 
 module.exports = router;
