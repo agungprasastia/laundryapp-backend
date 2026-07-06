@@ -5,7 +5,8 @@ exports.dashboard = async (req, res, next) => {
   try {
     const { data: pesanans } = await supabaseAdmin
       .from('pesanans')
-      .select('id, status, status_bayar, total_bayar, tanggal, created_at');
+      .select('id, status, status_bayar, total_bayar, tanggal, created_at, user_id (full_name), pakets(nama_paket)')
+      .order('created_at', { ascending: false });
 
     const all = pesanans || [];
     const today = new Date().toISOString().split('T')[0];
@@ -38,7 +39,9 @@ exports.dashboard = async (req, res, next) => {
       });
     }
 
-    res.json({ stats, chartData });
+    const recent_orders = all.slice(0, 5); // top 5 recent orders
+
+    res.json({ stats, chartData, recent_orders });
   } catch (err) { next(err); }
 };
 
