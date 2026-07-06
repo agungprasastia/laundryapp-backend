@@ -4,7 +4,7 @@ const userCtrl = require('../controllers/userController');
 const adminCtrl = require('../controllers/adminController');
 const { authMiddleware, requireRole } = require('../middlewares/auth');
 const upload = require('../middlewares/upload');
-const { validate, pesananSchema, updatePesananSchema, paketSchema } = require('../validators');
+const { validate, pesananSchema, updatePesananSchema, paketSchema, updateProfileSchema } = require('../validators');
 
 const router = Router();
 
@@ -14,6 +14,7 @@ router.get('/cek-status', publicCtrl.cekStatus);
 
 // ── Auth ──
 router.get('/me', authMiddleware, userCtrl.me);
+router.put('/user/profile', authMiddleware, validate(updateProfileSchema), userCtrl.updateProfile);
 
 // ── Pelanggan ──
 router.get('/user/dashboard', authMiddleware, requireRole('pelanggan'), userCtrl.dashboard);
@@ -40,6 +41,7 @@ router.put('/admin/pesanan/:id', authMiddleware, requireRole('admin'), validate(
 router.delete('/admin/pesanan/:id', authMiddleware, requireRole('admin'), adminCtrl.deletePesanan);
 
 router.get('/admin/laporan', authMiddleware, requireRole('admin'), adminCtrl.laporan);
+router.get('/admin/customers', authMiddleware, requireRole('admin'), adminCtrl.listCustomers);
 router.get('/admin/bukti-bayar/{*path}', authMiddleware, requireRole('admin'), adminCtrl.getBuktiBayar);
 
 module.exports = router;

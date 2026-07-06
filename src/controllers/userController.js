@@ -5,6 +5,24 @@ exports.me = async (req, res) => {
   res.json(req.user.profile);
 };
 
+// PUT /api/user/profile
+exports.updateProfile = async (req, res, next) => {
+  try {
+    const { full_name, phone } = req.body;
+    
+    // Update profile in the database
+    const { data, error } = await supabaseAdmin
+      .from('profiles')
+      .update({ full_name, phone })
+      .eq('id', req.user.id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    res.json(data);
+  } catch (err) { next(err); }
+};
+
 // GET /api/user/dashboard
 exports.dashboard = async (req, res, next) => {
   try {

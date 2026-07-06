@@ -19,6 +19,11 @@ const paketSchema = z.object({
   deskripsi: z.string().max(500).optional().default(''),
 });
 
+const updateProfileSchema = z.object({
+  full_name: z.string().min(1, 'Nama lengkap wajib diisi').max(100),
+  phone: z.string().max(20).optional().nullable(),
+});
+
 function validate(schema) {
   return (req, _res, next) => {
     req.body = schema.parse(req.body);
@@ -26,4 +31,4 @@ function validate(schema) {
   };
 }
 
-module.exports = { pesananSchema, updatePesananSchema, paketSchema, validate };
+module.exports = { pesananSchema, updatePesananSchema, paketSchema, updateProfileSchema, validate };

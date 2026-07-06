@@ -235,3 +235,36 @@ exports.getBuktiBayar = async (req, res, next) => {
     res.json({ url: data.signedUrl });
   } catch (err) { next(err); }
 };
+
+// CRM: List Customers
+exports.listCustomers = async (req, res, next) => {
+  try {
+    const { data: profiles, error } = await supabaseAdmin
+      .from('profiles')
+      .select('id, full_name, phone, role, created_at, pesanans(id, total_bayar, status, status_bayar)')
+      .eq('role', 'pelanggan')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    const customers = profiles.map(p => {
+      const orders = p.pesanans || [];
+      const completedOrders = orders.filter(o => o.status === 'Selesai' || o.status === 'Diambil');
+      const totalSpent = orders
+        .filter(o => o.status_bayar === 'Lunas')
+        .reduce((sum, o) => sum + parseFloat(o.total_bayar || 0), 0);
+      
+      return {
+        id: p.id,
+        full_name: p.full_name,
+        phone: p.phone,
+        created_at: p.created_at,
+        total_orders: orders.length,
+        completed_orders: completedOrders.length,
+        total_spent: totalSpent
+      };
+    });
+
+    res.json(customers);
+  } catch (err) { next(err); }
+};
