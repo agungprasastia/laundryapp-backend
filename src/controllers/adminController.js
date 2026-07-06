@@ -223,7 +223,7 @@ exports.laporan = async (req, res, next) => {
 // GET /api/admin/bukti-bayar/:path - signed URL for payment proof
 exports.getBuktiBayar = async (req, res, next) => {
   try {
-    const filePath = req.params[0]; // wildcard param
+    const filePath = req.params[0] || req.params.path; // fallback for Express 5 compatibility
     const { data, error } = await supabaseAdmin.storage
       .from('bukti-bayar')
       .createSignedUrl(filePath, 3600); // 1 hour
