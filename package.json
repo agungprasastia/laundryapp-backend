@@ -4,8 +4,10 @@
   "description": "",
   "main": "src/app.js",
   "scripts": {
+    "start": "node src/app.js",
     "dev": "node --watch src/app.js",
-    "start": "node src/app.js"
+    "test": "cross-env NODE_ENV=test vitest run",
+    "test:watch": "cross-env NODE_ENV=test vitest --watch"
   },
   "keywords": [],
   "author": "",
@@ -15,11 +17,16 @@
     "@supabase/supabase-js": "^2.110.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
-    "express": "^5.2.1",
+    "express": "^5.0.1",
     "express-rate-limit": "^8.5.2",
     "helmet": "^8.2.0",
     "morgan": "^1.11.0",
     "multer": "^2.2.0",
     "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "supertest": "^7.0.0",
+    "vitest": "^2.0.0"
   }
 }

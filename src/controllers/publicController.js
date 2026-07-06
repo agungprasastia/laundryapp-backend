@@ -8,9 +8,9 @@ exports.list = async (req, res, next) => {
       .select('*')
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
-    res.json(data);
-  } catch (err) { next(err); }
+    if (error) return next(error);
+    return res.json(data);
+  } catch (err) { return next(err); }
 };
 
 // GET /api/cek-status?query=
@@ -53,6 +53,6 @@ exports.cekStatus = async (req, res, next) => {
       .order('created_at', { ascending: false })
       .limit(10);
 
-    res.json(pesanans || []);
-  } catch (err) { next(err); }
+    return res.json(pesanans || []);
+  } catch (err) { return next(err); }
 };
