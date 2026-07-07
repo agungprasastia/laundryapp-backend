@@ -280,3 +280,41 @@ exports.listUlasan = async (req, res, next) => {
     next(err);
   }
 };
+
+// GET /api/admin/laporan
+exports.laporan = async (req, res, next) => {
+  try {
+    const { dari, sampai } = req.query;
+    let query = supabaseAdmin.from('pesanans').select('id, tanggal, total_bayar, status, status_bayar');
+    
+    if (dari) query = query.gte('tanggal', dari);
+    if (sampai) query = query.lte('tanggal', sampai);
+    
+    const { data: pesanans, error } = await query;
+    if (error) throw error;
+    
+    const all = pesanans || [];
+    
+    // Only count 'Lunas' orders for revenue
+    const lunasOrders = all.filter(p => p.status_bayar === 'Lunas');
+    
+    const total_pesanan = lunasOrders.length;
+    const total_pendapatan = lunasOrders.reduce((sum, p) => sum + parseFloat(p.total_bayar || 0), 0);
+    
+    // Group by tanggal
+    const dailyMap = {};
+    lunasOrders.forEach(p => {
+      if (!dailyMap[p.tanggal]) dailyMap[p.tanggal] = { jumlah: 0, pendapatan: 0 };
+      dailyMap[p.tanggal].jumlah += 1;
+      dailyMap[p.tanggal].pendapatan += parseFloat(p.total_bayar || 0);
+    });
+    
+    const detail_harian = Object.keys(dailyMap).sort().map(t => ({
+      tanggal: t,
+      jumlah: dailyMap[t].jumlah,
+      pendapatan: dailyMap[t].pendapatan
+    }));
+    
+    res.json({ total_pesanan, total_pendapatan, detail_harian });
+  } catch (err) { next(err); }
+};
