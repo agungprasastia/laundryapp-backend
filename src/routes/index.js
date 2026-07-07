@@ -44,6 +44,6 @@ router.delete('/admin/pesanan/:id', authMiddleware, requireRole('admin'), adminC
 router.get('/admin/laporan', authMiddleware, requireRole('admin'), adminCtrl.laporan);
 router.get('/admin/customers', authMiddleware, requireRole('admin'), adminCtrl.listCustomers);
 router.get('/admin/ulasan', authMiddleware, requireRole('admin'), adminCtrl.listUlasan);
-router.get('/admin/bukti-bayar/*', authMiddleware, requireRole('admin'), adminCtrl.getBuktiBayar);
+router.get('/admin/bukti-bayar/:path(*)', authMiddleware, requireRole('admin'), adminCtrl.getBuktiBayar);
 
 module.exports = router;
