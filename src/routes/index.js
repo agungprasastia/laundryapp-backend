@@ -14,7 +14,7 @@ router.get('/cek-status', publicCtrl.cekStatus);
 
 // ── Auth ──
 router.get('/me', authMiddleware, userCtrl.me);
-router.put('/user/profile', authMiddleware, validate(updateProfileSchema), userCtrl.updateProfile);
+router.put('/user/profile', authMiddleware, upload.single('avatar'), validate(updateProfileSchema), userCtrl.updateProfile);
 
 // ── Pelanggan ──
 router.get('/user/dashboard', authMiddleware, requireRole('pelanggan'), userCtrl.dashboard);

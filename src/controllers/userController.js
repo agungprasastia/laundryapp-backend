@@ -9,11 +9,37 @@ exports.me = async (req, res) => {
 exports.updateProfile = async (req, res, next) => {
   try {
     const { full_name, phone } = req.body;
+    let avatar_url = undefined;
+
+    if (req.file) {
+      const ext = req.file.originalname.split('.').pop();
+      const filePath = `${req.user.id}/avatar_${Date.now()}.${ext}`;
+
+      const { error: uploadError } = await supabaseAdmin.storage
+        .from('avatars')
+        .upload(filePath, req.file.buffer, {
+          contentType: req.file.mimetype,
+          upsert: true
+        });
+
+      if (uploadError) throw uploadError;
+      
+      const { data: publicUrlData } = supabaseAdmin.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+        
+      avatar_url = publicUrlData.publicUrl;
+    }
+
+    const updates = { full_name, phone };
+    if (avatar_url !== undefined) {
+      updates.avatar_url = avatar_url;
+    }
     
     // Update profile in the database
     const { data, error } = await supabaseAdmin
       .from('profiles')
-      .update({ full_name, phone })
+      .update(updates)
       .eq('id', req.user.id)
       .select()
       .single();
