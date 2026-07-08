@@ -2,7 +2,7 @@ const { supabaseAdmin } = require('../config/supabase');
 
 // GET /api/me
 exports.me = async (req, res) => {
-  res.json(req.user.profile);
+  res.json({ ...req.user.profile, email: req.user.email });
 };
 
 // PUT /api/user/profile
